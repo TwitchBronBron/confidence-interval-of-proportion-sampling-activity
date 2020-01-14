@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html ng-app="app">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css">
+    <style type="text/css">
+        body {
+            padding: 10px;
+        }
+
+        .admin-controls.hide {
+            visibility: hidden;
+        }
+
+        .population-display {
+            font-size: 0;
+        }
+
+        #inputs {
+            text-align: center;
+        }
+
+        label {
+            margin-right: 10px !important;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .item {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin: 1px;
+            border-radius: 4px;
+            transition: background-color .7s ease-in-out;
+            position: relative;
+        }
+
+        .item.red {
+            background-color: red;
+        }
+
+        .item.grey {
+            background-color: grey;
+        }
+
+        .button-xlarge {
+            font-size: 125%;
+        }
+
+        [text-center] {
+            text-align: center;
+        }
+
+        .controls {
+            padding-top: 20px;
+            height: 35px;
+        }
+
+        .lds-ellipsis {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 33px;
+            top: -25px;
+        }
+
+        .lds-ellipsis div {
+            position: absolute;
+            top: 33px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #0078e7;
+            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+        }
+
+        .lds-ellipsis div:nth-child(1) {
+            left: 8px;
+            animation: lds-ellipsis1 0.6s infinite;
+        }
+
+        .lds-ellipsis div:nth-child(2) {
+            left: 8px;
+            animation: lds-ellipsis2 0.6s infinite;
+        }
+
+        .lds-ellipsis div:nth-child(3) {
+            left: 32px;
+            animation: lds-ellipsis2 0.6s infinite;
+        }
+
+        .lds-ellipsis div:nth-child(4) {
+            left: 56px;
+            animation: lds-ellipsis3 0.6s infinite;
+        }
+
+        @keyframes lds-ellipsis1 {
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes lds-ellipsis3 {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(0);
+            }
+        }
+
+        @keyframes lds-ellipsis2 {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            100% {
+                transform: translate(24px, 0);
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.min.js"></script>
+
+    <script>
+        angular.module('app', []).controller('AppController', function ($q, $scope, $timeout) {
+            window.Promise = $q;
+            var vm = this;
+            vm.populationSize = 5000;
+            vm.percentRed = 30;
+            vm.countRed = 0;
+            vm.sampleSize = 50;
+            vm.populationCountRed = 0;
+            vm.items = [];
+            vm.isGenerating = false;
+
+            function constructor() {
+                vm.generate();
+            }
+
+            vm.generate = function () {
+                vm.isGenerating = true;
+                return Promise.resolve().then(function () {
+                    return $timeout(10);
+                }).then(function () {
+                    vm.items = [];
+                    vm.countRed = Math.ceil(
+                        (vm.percentRed / 100) *
+                        vm.populationSize
+                    );
+
+                    //initialize the array with grey
+                    for (var i = 0; i < vm.populationSize; i++) {
+                        vm.items[i] = 'grey';
+                    }
+
+                    //fill in red indexes
+                    var redIndexes = getRandomIndexes(vm.countRed, vm.populationSize);
+                    for (var i = 0; i < redIndexes.length; i++) {
+                        var idx = redIndexes[i];
+                        if (vm.items[idx] === 'red') {
+                            debugger;
+                        }
+                        vm.items[idx] = 'red';
+                    }
+
+                    //generate a sample
+                    vm.sampleIndexes = getRandomIndexes(vm.sampleSize, vm.populationSize);
+
+                    vm.sampleCountRed = 0;
+                    for (var i = 0; i < vm.sampleIndexes.length; i++) {
+                        var idx = vm.sampleIndexes[i];
+                        var color = vm.items[idx]
+                        if (color === 'red') {
+                            vm.sampleCountRed++;
+                        }
+                    }
+
+                    vm.populationCountRed = 0;
+                    for (var i = 0; i < vm.items.length; i++) {
+                        if (vm.items[i] === 'red') {
+                            vm.populationCountRed++;
+                        }
+                    }
+                }).then(function () {
+                    vm.isGenerating = false;
+                });
+            }
+
+            function getRandomIndexes(take, max) {
+                //don't take more than the max
+                take = take <= max ? take : max;
+
+                var possibleValues = [];
+                for (var i = 0; i < max; i++) {
+                    possibleValues.push(i);
+                }
+                var selectedIndexes = [];
+                while (selectedIndexes.length < take) {
+                    var randomIndex = Math.floor(Math.random() * possibleValues.length);
+                    var takenIndex = possibleValues[randomIndex];
+                    selectedIndexes.push(takenIndex);
+                    //remove this option
+                    possibleValues.splice(randomIndex, 1);
+                }
+                return selectedIndexes;
+            }
+            constructor();
+        });
+
+    </script>
+</head>
+
+<body ng-controller="AppController as vm">
+    <form id="inputs" class="pure-form pure-form-aligned">
+        <h1>Confidence Interval of Proportion: Sampling Activity</h1>
+        <label for="population-size">Population Size:
+            <input id="population-size" type="number" ng-model="vm.populationSize" />
+        </label>
+        <label for="percent-red">Percent red:
+            <input id="percent-red" type="number" ng-model="vm.percentRed" max="100" />
+        </label>
+        <label for="sample-size">Sample size:
+            <input id="sample-size" type="number" ng-model="vm.sampleSize" max="{{vm.populationSize}}" />
+        </label>
+        <div class="controls">
+            <button ng-if="!vm.isGenerating" class="pure-button pure-button-primary button-xlarge"
+                    ng-click="vm.generate()">
+                Generate
+            </button>
+            <div class="lds-ellipsis" ng-if="vm.isGenerating">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+
+    </form>
+    <div ng-if="vm.items && vm.items.length > 0">
+        <h3>Sample ({{vm.sampleCountRed}} red)</h3>
+        <div class="sample-display">
+            <div class="item"
+                 ng-repeat="sampleIndex in vm.sampleIndexes track by $index"
+                 ng-class="vm.items[sampleIndex]"
+                 title="{{sampleIndex}}">
+            </div>
+        </div>
+
+        <h3>Population ({{vm.populationCountRed}} red)</h3>
+        <div class="population-display">
+            <div
+                 class="item"
+                 ng-repeat="item in vm.items track by $index"
+                 ng-class="item"
+                 title="{{$index}}">
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
