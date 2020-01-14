@@ -148,7 +148,7 @@
             vm.generate = function () {
                 vm.isGenerating = true;
                 return Promise.resolve().then(function () {
-                    return $timeout(10);
+                    return $timeout(250);
                 }).then(function () {
                     vm.items = [];
                     vm.countRed = Math.ceil(
@@ -231,14 +231,16 @@
             <input id="sample-size" type="number" ng-model="vm.sampleSize" max="{{vm.populationSize}}" />
         </label>
         <div class="controls">
-            <button ng-if="!vm.isGenerating" class="pure-button pure-button-primary button-xlarge"
-                    ng-click="vm.generate()">
-                Generate
-            </button>
-            <button class="pure-button pure-button-secondary button-xlarge"
-                    ng-click="vm.isAdminDataVisible = !vm.isAdminDataVisible">
-                {{vm.isAdminDataVisible? 'Hide': 'Show'}} admin information
-            </button>
+            <div class="buttons" ng-show="!vm.isGenerating">
+                <button class="pure-button pure-button-primary button-xlarge"
+                        ng-click="vm.generate()">
+                    Generate
+                </button>
+                <button class="pure-button pure-button-secondary button-xlarge"
+                        ng-click="vm.isAdminDataVisible = !vm.isAdminDataVisible">
+                    {{vm.isAdminDataVisible? 'Hide': 'Show'}} admin information
+                </button>
+            </div>
             <div class="lds-ellipsis" ng-if="vm.isGenerating">
                 <div></div>
                 <div></div>
