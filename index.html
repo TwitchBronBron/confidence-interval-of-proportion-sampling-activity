@@ -33,7 +33,7 @@
             height: 12px;
             margin: 1px;
             border-radius: 4px;
-            transition: background-color .7s ease-in-out;
+            transition: background-color .5s ease-in-out;
             position: relative;
         }
 
@@ -139,6 +139,7 @@
             vm.populationCountRed = 0;
             vm.items = [];
             vm.isGenerating = false;
+            vm.isAdminDataVisible = true;
 
             function constructor() {
                 vm.generate();
@@ -220,10 +221,10 @@
 <body ng-controller="AppController as vm">
     <form id="inputs" class="pure-form pure-form-aligned">
         <h1>Confidence Interval of Proportion: Sampling Activity</h1>
-        <label for="population-size">Population Size:
+        <label for="population-size" ng-show="vm.isAdminDataVisible">Population Size:
             <input id="population-size" type="number" ng-model="vm.populationSize" />
         </label>
-        <label for="percent-red">Percent red:
+        <label for="percent-red" ng-show="vm.isAdminDataVisible">Percent red:
             <input id="percent-red" type="number" ng-model="vm.percentRed" max="100" />
         </label>
         <label for="sample-size">Sample size:
@@ -234,6 +235,10 @@
                     ng-click="vm.generate()">
                 Generate
             </button>
+            <button class="pure-button pure-button-secondary button-xlarge"
+                    ng-click="vm.isAdminDataVisible = !vm.isAdminDataVisible">
+                {{vm.isAdminDataVisible? 'Hide': 'Show'}} admin information
+            </button>
             <div class="lds-ellipsis" ng-if="vm.isGenerating">
                 <div></div>
                 <div></div>
@@ -243,7 +248,7 @@
         </div>
 
     </form>
-    <div ng-if="vm.items && vm.items.length > 0">
+    <div ng-show="vm.items && vm.items.length > 0">
         <h3>Sample ({{vm.sampleCountRed}} red)</h3>
         <div class="sample-display">
             <div class="item"
@@ -253,13 +258,15 @@
             </div>
         </div>
 
-        <h3>Population ({{vm.populationCountRed}} red)</h3>
-        <div class="population-display">
-            <div
-                 class="item"
-                 ng-repeat="item in vm.items track by $index"
-                 ng-class="item"
-                 title="{{$index}}">
+        <div ng-show="vm.isAdminDataVisible">
+            <h3>Population ({{vm.populationCountRed}} red)</h3>
+            <div class="population-display">
+                <div
+                     class="item"
+                     ng-repeat="item in vm.items track by $index"
+                     ng-class="item"
+                     title="{{$index}}">
+                </div>
             </div>
         </div>
     </div>
