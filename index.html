@@ -46,10 +46,12 @@
 
         .item.red {
             background-color: red;
+            border-color: red;
         }
 
         .item.grey {
             background-color: grey;
+            border-color: grey;
         }
 
         .item.selected {
@@ -59,12 +61,13 @@
             border: none;
         }
 
-        .item.selected.active {
-            border: 0;
-            background-color: aqua !important;
+        .item.selected.highlight {
+            border: 3px solid aqua !important;
+            animation: pulse-blue .5s infinite;
+            position: relative;
+            z-index: 10;
         }
         
-
         .focus .item.selected {
             border: none;
         }
@@ -147,6 +150,23 @@
 
             100% {
                 transform: translate(24px, 0);
+            }
+        }
+
+        @keyframes pulse-blue {
+            0% {
+                transform: scale(1.95);
+                box-shadow: 0 0 0 0 rgba(52, 172, 224, 0.7);
+            }
+
+            70% {
+                transform: scale(1.5);
+                box-shadow: 0 0 0 10px rgba(52, 172, 224, 0);
+            }
+            
+            100% {
+                transform: scale(1.95);
+                box-shadow: 0 0 0 0 rgba(52, 172, 224, 0);
             }
         }
 
@@ -295,10 +315,10 @@
     <div ng-show="vm.items && vm.items.length > 0">
         <h3>Sample ({{vm.sampleCountRed}} red)</h3>
         <div class="sample-display">
-            <div class="item selected {{vm.activeSampleIndex === sampleIndex ? 'active': ''}}"
+            <div class="item selected {{vm.highlightSampleIndex === sampleIndex ? 'highlight': ''}}"
                  ng-repeat="sampleIndex in vm.sampleIndexes track by $index"
-                 ng-mouseover="vm.activeSampleIndex = sampleIndex"
-                 ng-mouseleave="vm.activeSampleIndex = sampleIndex"
+                 ng-mouseover="vm.highlightSampleIndex = sampleIndex"
+                 ng-mouseleave="vm.highlightSampleIndex = null"
                  ng-class="vm.items[sampleIndex]"
                  title="{{sampleIndex}}">
             </div>
@@ -308,9 +328,9 @@
             <a class="pure-button sample-focus-toggle" ng-click="vm.areSamplesFocused = !vm.areSamplesFocused">{{vm.areSamplesFocused? 'Unfocus': 'Focus'}} samples</a>
             <div class="population-display" ng-class="vm.areSamplesFocused? 'focus': ''">
                 <div
-                     class="item {{item}} {{$index}} {{vm.sampleIndexes.indexOf($index) > -1 ? 'selected': 'unselected'}} {{vm.activeSampleIndex === $index ? 'active': ''}}"
-                     ng-mouseover="vm.activeSampleIndex = $index"
-                     ng-mouseleave="vm.activeSampleIndex = null"
+                     class="item {{item}} {{$index}} {{vm.sampleIndexes.indexOf($index) > -1 ? 'selected': 'unselected'}} {{vm.highlightSampleIndex === $index ? 'highlight': ''}}"
+                     ng-mouseover="vm.highlightSampleIndex = $index"
+                     ng-mouseleave="vm.highlightSampleIndex = null"
                      ng-repeat="item in vm.items track by $index"
                      title="{{$index}}">
                 </div>
