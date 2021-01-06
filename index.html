@@ -10,12 +10,18 @@
             padding: 10px;
         }
 
+        .pure-button {
+            cursor: pointer;
+        }
+
         .admin-controls.hide {
             visibility: hidden;
         }
 
         .population-display {
             font-size: 0;
+            padding: 5px;
+            border-radius: 4px;
         }
 
         #inputs {
@@ -34,8 +40,8 @@
             height: 12px;
             margin: 1px;
             border-radius: 4px;
-            transition: background-color .5s ease-in-out;
             position: relative;
+            box-sizing: border-box;
         }
 
         .item.red {
@@ -44,6 +50,23 @@
 
         .item.grey {
             background-color: grey;
+        }
+
+        .item.selected {
+            border: 3px solid black;
+        }
+        .sample-display .item.selected{
+            border: none;
+        }
+
+        .item.selected.active {
+            border: 0;
+            background-color: aqua !important;
+        }
+        
+
+        .focus .item.selected {
+            border: none;
         }
 
         .button-xlarge {
@@ -135,6 +158,15 @@
             opacity: 0;
         }
 
+        .sample-focus-toggle {
+            top:-10px; 
+            position:relative;
+        }
+
+        .population-display.focus .unselected {
+            opacity: .15;
+        }
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.min.js"></script>
 
@@ -183,7 +215,7 @@
 
                     //generate a sample
                     vm.sampleIndexes = getRandomIndexes(vm.sampleSize, vm.populationSize);
-
+                    console.log(vm.sampleIndexes);
                     vm.sampleCountRed = 0;
                     for (var i = 0; i < vm.sampleIndexes.length; i++) {
                         var idx = vm.sampleIndexes[i];
@@ -220,11 +252,11 @@
                     //remove this option
                     possibleValues.splice(randomIndex, 1);
                 }
+                selectedIndexes.sort(function(a,b){return a - b})
                 return selectedIndexes;
             }
             constructor();
         });
-
     </script>
 </head>
 
@@ -263,20 +295,23 @@
     <div ng-show="vm.items && vm.items.length > 0">
         <h3>Sample ({{vm.sampleCountRed}} red)</h3>
         <div class="sample-display">
-            <div class="item"
+            <div class="item selected {{vm.activeSampleIndex === sampleIndex ? 'active': ''}}"
                  ng-repeat="sampleIndex in vm.sampleIndexes track by $index"
+                 ng-mouseover="vm.activeSampleIndex = sampleIndex"
+                 ng-mouseleave="vm.activeSampleIndex = sampleIndex"
                  ng-class="vm.items[sampleIndex]"
                  title="{{sampleIndex}}">
             </div>
         </div>
-
         <div class="admin-feature" ng-class="vm.isAdminDataVisible?'':'invisible'">
             <h3>Population ({{vm.populationCountRed}} red)</h3>
-            <div class="population-display">
+            <a class="pure-button sample-focus-toggle" ng-click="vm.areSamplesFocused = !vm.areSamplesFocused">{{vm.areSamplesFocused? 'Unfocus': 'Focus'}} samples</a>
+            <div class="population-display" ng-class="vm.areSamplesFocused? 'focus': ''">
                 <div
-                     class="item"
+                     class="item {{item}} {{$index}} {{vm.sampleIndexes.indexOf($index) > -1 ? 'selected': 'unselected'}} {{vm.activeSampleIndex === $index ? 'active': ''}}"
+                     ng-mouseover="vm.activeSampleIndex = $index"
+                     ng-mouseleave="vm.activeSampleIndex = null"
                      ng-repeat="item in vm.items track by $index"
-                     ng-class="item"
                      title="{{$index}}">
                 </div>
             </div>
